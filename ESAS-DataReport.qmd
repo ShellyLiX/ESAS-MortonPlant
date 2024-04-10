@@ -27,13 +27,14 @@ library(psych)
 library(scales)
 library(texreg)
 library(psych)
+library(lme4)
 ```
 
 ```{r}
 #| echo: false
 # Load data - most recent version saved 3/13/2024
-ESAS_raw<-read_excel("J:/Jim_Gonzalez_Research/DATA/Jim/ESAS_datasets/MortonPlant/2023_03_11_ESAS Data.xlsx", na = "N/A")
-
+# ESAS_raw<-read_excel("J:/Jim_Gonzalez_Research/DATA/Jim/ESAS_datasets/MortonPlant/2023_03_11_ESAS Data.xlsx", na = "N/A")
+ESAS_raw<-read_excel("/Volumes/jim_gonzalez_research/DATA/Jim/ESAS_datasets/MortonPlant/2023_03_11_ESAS Data.xlsx", na = "N/A")
 # ESAS Data management
 ESAS <- ESAS_raw %>%
   mutate(patient_id = as.factor(`Patient ID`)) %>%
@@ -76,5 +77,8 @@ ESAS %>%
   geom_line() +
 #  geom_point() +
   labs(title = "Spaghetti Plot of ESAS Data", x = "Week", y = "ESAS Total Score") +
-  theme_classic()
+  theme_classic() +
+  theme(legend.position = "bottom") +
+    guides(color = guide_legend(nrow = 5, title = NULL, title.position = "top"))
+  
 ```
