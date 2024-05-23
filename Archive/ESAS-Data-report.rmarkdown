@@ -1,0 +1,92 @@
+---
+title: "ESAS preliminary analysis"
+author: "Shelly Li"
+format: pdf
+output: pdf_document
+execute:
+  echo: no
+  warning: no
+  error: no
+---
+
+
+## Preliminary findings from ESAS data - Morton Plant 
+### Current problems: 
+#### 1. ! Do we remove ESAS values that is too far away from baseline?
+#### 2. SOme patients have more than one ED/hospitalization visit dates - do we only analyze the number of visits? 
+
+
+
+```{r}
+#| echo: false
+# Load useful libraries
+library(tidyverse)
+library(readxl)
+library(gt)
+library(gtsummary)
+library(ggplot2)
+library(lubridate)
+library(psych)
+library(scales)
+library(texreg)
+library(psych)
+library(lme4)
+```
+
+```{r}
+#| echo: false
+# Load data - most recent version saved 3/13/2024
+# ESAS_raw<-read_excel("J:/Jim_Gonzalez_Research/DATA/Jim/ESAS_datasets/MortonPlant/2023_03_11_ESAS Data.xlsx", na = "N/A")
+ESAS_raw<-read_excel("/Volumes/jim_gonzalez_research/DATA/Jim/ESAS_datasets/MortonPlant/2023_03_11_ESAS Data.xlsx", na = "N/A")
+# ESAS Data management
+ESAS <- ESAS_raw %>%
+  mutate(patient_id = as.factor(`Patient ID`)) %>%
+  arrange(`Patient ID`, `Date of Visit`) %>%
+  group_by(`Patient ID`) %>%
+  mutate(week = interval( first(`Date of Visit`), `Date of Visit`) %/% weeks(1),
+         reading_num = row_number())
+```
+
+
+There are `r sum(!is.na(ESAS$patient_id))` observations, and `r n_distinct(ESAS$patient_id)` patients. 
+
+The following are the destribution of the weeks 
+
+```{r}
+#|label: tbl-weeks
+describe(ESAS$week) %>%
+  as.data.frame() %>%
+  select(-vars, - trimmed, -mad) %>%
+  gt() %>%
+  cols_align(align = "center")%>%
+  fmt_number(c(mean, sd, median, min, max, range, skew, kurtosis, se), decimals = 1)%>%
+  tab_options(table.width = "100%")
+```
+
+
+### Histogram with blocks of 4 weeks - Remove 
+
+```{r}
+#| echo: false
+ESAS %>%
+  ggplot(aes(x = week)) +
+  geom_histogram(binwidth = 4, color = "black", fill = "skyblue", alpha = 0.7) +
+  labs(title = "Histogram with Blocks of 4 Weeks", x = "Week", y = "Frequency") +
+  theme_minimal()
+```
+
+
+### Plot spaghetti plot
+
+```{r}
+#| echo: false
+#| warning: false
+ESAS %>%
+  ggplot(aes(x = week, y = `Total Score`, group = patient_id, color = patient_id)) +
+  geom_line() +
+#  geom_point() +
+  labs(title = "Spaghetti Plot of ESAS Data", x = "Week", y = "ESAS Total Score") +
+  theme_classic() +
+  theme(legend.position = "bottom")  +
+    guides(color = guide_legend(nrow = 5, title = NULL, title.position = "top"))
+```
