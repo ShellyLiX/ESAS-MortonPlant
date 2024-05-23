@@ -1,12 +1,13 @@
 ---
 title: "ESAS preliminary analysis"
 author: "Shelly Li"
+date: today
 format: html
+self-contained: true
 execute:
   echo: false
   warning: false
   error: false
-tbl-cap-location: top
 ---
 
 ```{r}
@@ -72,7 +73,7 @@ ESAS_valid <- ESAS %>%
          n_weeks = n(), 
          max_week = max(week)) %>%
   ungroup() 
-write_csv(ESAS_valid, "/Volumes/jim_gonzalez_research/DATA/Jim/ESAS_datasets/MortonPlant/Analysis_MP.csv")
+write_csv(ESAS_valid, "/Volumes/jim_gonzalez_research/DATA/Jim/ESAS_datasets/MortonPlant/ValidData_MP.csv")
 ```
 
 ## Preliminary findings from ESAS data - Morton Plant 
@@ -117,6 +118,7 @@ patient_coefficients_merge <- do.call(rbind, patient_coefficients) %>%
          intercept_fill = ifelse(is.na(slope), mean(intercept), intercept))
 # View the results
 # print(patient_coefficients)
+write_csv(patient_coefficients_merge, "/Volumes/jim_gonzalez_research/DATA/Jim/ESAS_datasets/MortonPlant/Analysis_MP.csv")
 ```
 
 ### Span of data collection in weeks for all observations (n = `r sum(!is.na(ESAS$patient_id))`):
